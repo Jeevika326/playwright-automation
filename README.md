@@ -7,59 +7,52 @@ This framework provides automated testing capabilities using Playwright to test 
 - [Node.js](https://nodejs.org/) 
 - [npm](https://www.npmjs.com/) 
 - [Visual Studio Code]
+- [Gitpod Account](https://gitpod.io/)
+- LambdaTest Account (for credentials)
 
 ## Installation
 ### Clone the repository:
 ```sh
 git clone <repository-url>
-cd playwright-lambdatest-automation
+cd playwright-lambdatest-automation-main
 ```
 
 ### Install dependencies:
 ```sh
-npx playwright install-deps and npx playwright install 
+npm install
 ```
 
-### Install Playwright browsers:
+## LambdaTest Credentials
+Set your LambdaTest credentials as environment variables in Gitpod:
 ```sh
-npx playwright install
+export LT_USERNAME=<your-lambdatest-username>
+export LT_ACCESS_KEY=<your-lambdatest-access-key>
 ```
+Or add them to your Gitpod environment variables settings for persistence.
 
-## Project Structure
-The framework follows a structured test automation approach:
-- `tests/` - Contains test scripts.
-- `playwright.config.ts` - Configuration file for Playwright settings.
-
-## Configuration
-The framework uses `playwright.config.ts` for test configuration, including browser settings, test timeout, and reporting.
-
-## Running Tests
-### Run all tests:
+## Running Tests in Gitpod
+1. Open the repository in Gitpod (single-click launch supported).
+2. Run all tests in parallel on LambdaTest Cloud Grid:
 ```sh
 npx playwright test
 ```
 
-### Run a specific test file:
-```sh
-npx playwright test tests/simpleFormDemo.spec.ts
-```
+## Features
+- Parallel execution on LambdaTest Cloud Grid
+- Network logs, video recording, screenshots, and console logs enabled
+- Modern Playwright configuration
 
-### Run tests in headed mode:
-```sh
-npx playwright test --headed
-```
+## Project Structure
+- `tests/` - Contains test scripts.
+- `playwright.config.ts` - Playwright configuration for LambdaTest.
+- `.gitpod.yml` - Gitpod environment setup.
 
-## Scripts
-Available npm scripts:
-- `"test"`: Runs all Playwright tests using `npx playwright test`
+## Test Results & Reports
+- HTML reports: `playwright-report/`
+- LambdaTest dashboard: Find your test runs and Test IDs for submission.
 
-## Dependencies
-- `@playwright/test`: ^1.50.1
-- `@types/node`: ^22.13.8
-- `typescript`: ^5.0.0
+## Submitting Test IDs
+After running tests, visit your LambdaTest Automation Dashboard to find and submit the Test IDs as required.
 
-## Reporting
-Test reports are automatically generated after test execution. To view the HTML report:
-```sh
-npx playwright show-report
-```
+## Support
+For issues, contact LambdaTest support or your admin.

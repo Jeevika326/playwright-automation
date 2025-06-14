@@ -1,0 +1,14 @@
+tasks:
+  - name: Install dependencies
+    init: true
+    command: npm install all
+  - name: Run Playwright tests on LambdaTest
+    command: npx playwright test
+
+vscode:
+  extensions:
+    - ms-playwright.playwright
+    - dbaeumer.vscode-eslint
+    - esbenp.prettier-vscode
+    - GitHub.vscode-pull-request-github
+    - eamodio.gitlens
