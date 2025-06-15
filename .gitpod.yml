@@ -6,15 +6,29 @@ tasks:
       # Install Node dependencies
       npm install
       
-      # Install Playwright and its dependencies
+      # Clean any existing Playwright installations
+      rm -rf ~/.cache/ms-playwright/
+      
+      # Install Playwright
       npm install -D @playwright/test
       
-      # Install Playwright browsers and system dependencies
-      npx playwright install
+      # Install browsers one by one and verify installation
+      echo "Installing Chromium..."
+      npx playwright install chromium
+      
+      echo "Installing Firefox..."
+      npx playwright install firefox
+      
+      echo "Installing WebKit..."
+      npx playwright install webkit
+      
+      # Install browser dependencies
+      echo "Installing browser dependencies..."
       npx playwright install-deps
       
-      # Install dotenv for .env file support
-      npm install dotenv
+      # Verify browser installations
+      echo "Verifying browser installations..."
+      npx playwright install --help
       
       # Create necessary directories
       mkdir -p playwright-report test-results
@@ -30,9 +44,25 @@ tasks:
         echo "⚠️  No .env file found"
       fi
 
+  - name: Verify Browser Installation
+    command: |
+      echo "Checking browser installations..."
+      
+      # List installed browsers
+      npx playwright install --help
+      
+      # Try launching each browser to verify installation
+      echo "Testing browser launches..."
+      node -e "const { chromium } = require('@playwright/test'); (async () => { const browser = await chromium.launch(); await browser.close(); console.log('✅ Chromium launch test successful'); })().catch(e => { console.error('❌ Chromium launch failed:', e); process.exit(1); })"
+      node -e "const { firefox } = require('@playwright/test'); (async () => { const browser = await firefox.launch(); await browser.close(); console.log('✅ Firefox launch test successful'); })().catch(e => { console.error('❌ Firefox launch failed:', e); process.exit(1); })"
+      node -e "const { webkit } = require('@playwright/test'); (async () => { const browser = await webkit.launch(); await browser.close(); console.log('✅ WebKit launch test successful'); })().catch(e => { console.error('❌ WebKit launch failed:', e); process.exit(1); })"
+
   - name: Run Tests & Generate Report
     command: |
       echo "Starting Playwright tests..."
+      
+      # Ensure browsers are installed before running tests
+      npx playwright install
       
       # Run the tests
       npx playwright test
@@ -55,13 +85,6 @@ tasks:
       echo "Test Summary:"
       grep "test" playwright-report/index.html | grep -o "Passed:[^<]*\|Failed:[^<]*\|Skipped:[^<]*"
 
-  - name: Environment Check
-    command: |
-      echo "Checking test environment..."
-      echo "Node version: $(node -v)"
-      echo "npm version: $(npm -v)"
-      echo "Playwright version: $(npx playwright -V)"
-
 vscode:
   extensions:
     - "ms-playwright.playwright"
@@ -83,18 +106,3 @@ ports:
   - port: 443
     onOpen: ignore
     visibility: public
-
-github:
-  prebuilds:
-    # enable for the master/default branch (defaults to true)
-    master: true
-    # enable for all branches in this repo (defaults to false)
-    branches: true
-    # enable for pull requests coming from this repo (defaults to true)
-    pullRequests: true
-    # enable for pull requests coming from forks (defaults to false)
-    pullRequestsFromForks: true
-    # add a check to pull requests (defaults to true)
-    addCheck: true
-    # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
-    addComment: true
