@@ -1,57 +1,72 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
+import dotenv from 'dotenv';
 
-const LT_USERNAME = process.env.LT_USERNAME;
-const LT_ACCESS_KEY = process.env.LT_ACCESS_KEY;
-const LT_GRID_URL = `wss://cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(JSON.stringify({
-  browserName: 'Chrome',
-  browserVersion: 'latest',
-  'LT:Options': {
-    platform: 'Windows 10',
-    build: 'Playwright-Gitpod-Build',
-    name: 'Playwright-Gitpod-Test',
-    user: LT_USERNAME,
-    accessKey: LT_ACCESS_KEY,
-    network: true,
-    video: true,
-    console: true,
-    visual: true,
-    project: 'Playwright-Gitpod',
-    selenium_version: '4.0.0',
-    geoLocation: 'US',
-    resolution: '1920x1080',
-    w3c: true
-  }
-}))}`;
+// Load environment variables from .env file
+dotenv.config();
+
+const LT_USERNAME = process.env.LT_USERNAME || '';
+const LT_ACCESS_KEY = process.env.LT_ACCESS_KEY || '';
+
+// Common LambdaTest options
+const commonLTOptions = {
+  'platform': 'Windows 10',
+  'build': `Playwright Build - ${new Date().toISOString()}`,
+  'user': LT_USERNAME,
+  'accessKey': LT_ACCESS_KEY,
+  'network': true,
+  'video': true,
+  'console': true,
+  'tunnel': false,
+  'project': 'Playwright Test Project',
+};
 
 export default defineConfig({
+  testDir: './tests',
+  timeout: 90000,
   retries: 1,
-  fullyParallel: true,
-  use: {
-    headless: true,
-    trace: 'on',
-    video: 'on',
-    screenshot: 'only-on-failure',
-    connectOptions: {
-      wsEndpoint: LT_GRID_URL,
-    },
-  },
-  reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
+  workers: 2,
+  reporter: [['html', { outputFolder: 'playwright-report' }]],
+
   projects: [
     {
-      name: 'Windows 10 - Chromium',
+      name: 'Chrome@latest',
       use: {
-        ...devices['Desktop Chrome'],
-        browserName: 'chromium',
-        viewport: { width: 1920, height: 1080 },
-      },
+        connectOptions: {
+          wsEndpoint: `wss://${LT_USERNAME}:${LT_ACCESS_KEY}@cdp.lambdatest.com/playwright?capabilities=
+          ${encodeURIComponent(JSON.stringify({
+            'browserName': 'Chrome',
+            'browserVersion': 'latest',
+            'LT:Options': {
+              ...commonLTOptions,
+              'name': 'Playwright Test - Chrome'
+            }
+          }))}`
+        }
+      }
     },
     {
-      name: 'macOS Catalina - Firefox',
+      name: 'Edge@latest',
       use: {
-        ...devices['Desktop Firefox'],
-        browserName: 'firefox',
-        viewport: { width: 1920, height: 1080 },
-      },
-    },
+        connectOptions: {
+          wsEndpoint: `wss://${LT_USERNAME}:${LT_ACCESS_KEY}@cdp.lambdatest.com/playwright?capabilities=
+          ${encodeURIComponent(JSON.stringify({
+            'browserName': 'MicrosoftEdge',
+            'browserVersion': 'latest',
+            'LT:Options': {
+              ...commonLTOptions,
+              'name': 'Playwright Test - Edge'
+            }
+          }))}`
+        }
+      }
+    }
   ],
+
+  use: {
+    baseURL: 'https://www.lambdatest.com',
+    trace: 'retain-on-failure',
+    video: 'off', // Disable local video recording
+    screenshot: 'only-on-failure'
+  },
 });
+
