@@ -19,9 +19,6 @@ tasks:
       echo "Installing Firefox..."
       npx playwright install firefox
       
-      echo "Installing WebKit..."
-      npx playwright install webkit
-      
       # Install browser dependencies
       echo "Installing browser dependencies..."
       npx playwright install-deps
@@ -55,8 +52,7 @@ tasks:
       echo "Testing browser launches..."
       node -e "const { chromium } = require('@playwright/test'); (async () => { const browser = await chromium.launch(); await browser.close(); console.log('✅ Chromium launch test successful'); })().catch(e => { console.error('❌ Chromium launch failed:', e); process.exit(1); })"
       node -e "const { firefox } = require('@playwright/test'); (async () => { const browser = await firefox.launch(); await browser.close(); console.log('✅ Firefox launch test successful'); })().catch(e => { console.error('❌ Firefox launch failed:', e); process.exit(1); })"
-      node -e "const { webkit } = require('@playwright/test'); (async () => { const browser = await webkit.launch(); await browser.close(); console.log('✅ WebKit launch test successful'); })().catch(e => { console.error('❌ WebKit launch failed:', e); process.exit(1); })"
-
+      
   - name: Run Tests & Generate Report
     command: |
       echo "Starting Playwright tests..."
