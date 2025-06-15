@@ -1,14 +1,101 @@
+image: gitpod/workspace-node
+
 tasks:
-  - name: Install dependencies
-    init: true
-    command: npm install all
-  - name: Run Playwright tests on LambdaTest
-    command: npx playwright test
+  - name: Install Dependencies & Setup
+    init: |
+      # Install Node dependencies
+      npm install
+      
+      # Clean any existing Playwright installations
+      rm -rf ~/.cache/ms-playwright/
+      
+      # Install Playwright
+      npm install -D @playwright/test
+      
+      # Install only Chrome and Firefox
+      echo "Installing Chrome..."
+      npx playwright install chrome
+      
+      echo "Installing Firefox..."
+      npx playwright install firefox
+      
+      # Install browser dependencies
+      echo "Installing browser dependencies..."
+      npx playwright install-deps chrome firefox
+      
+      # Create necessary directories
+      mkdir -p playwright-report test-results
+
+    command: |
+      # Load environment variables from .env
+      if [ -f ".env" ]; then
+        set -a
+        source .env
+        set +a
+        echo "✅ Loaded credentials from .env file"
+      else
+        echo "⚠️  No .env file found"
+      fi
+
+  - name: Verify Browser Installation
+    command: |
+      echo "Checking browser installations..."
+      
+      # List installed browsers
+      npx playwright install --help
+      
+      # Try launching each browser to verify installation
+      echo "Testing browser launches..."
+      node -e "const { chromium } = require('@playwright/test'); (async () => { const browser = await chromium.launch(); await browser.close(); console.log('✅ Chrome launch test successful'); })().catch(e => { console.error('❌ Chrome launch failed:', e); process.exit(1); })"
+      node -e "const { firefox } = require('@playwright/test'); (async () => { const browser = await firefox.launch(); await browser.close(); console.log('✅ Firefox launch test successful'); })().catch(e => { console.error('❌ Firefox launch failed:', e); process.exit(1); })"
+
+  - name: Run Tests & Generate Report
+    command: |
+      echo "Starting Playwright tests..."
+      
+      # Ensure browsers are installed
+      npx playwright install chrome firefox
+      
+      # Run the tests
+      npx playwright test
+      
+      # Generate and open the HTML report
+      npx playwright show-report
+      
+      # Create a timestamp for the report archive
+      TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+      
+      # Archive the test results and reports
+      mkdir -p test-archives
+      zip -r "test-archives/test-run-${TIMESTAMP}.zip" playwright-report/* test-results/*
+      
+      echo "🎯 Test execution completed!"
+      echo "📊 HTML Report is available in playwright-report/"
+      echo "📁 Test archive created: test-archives/test-run-${TIMESTAMP}.zip"
+      
+      # Display test summary
+      echo "Test Summary:"
+      grep "test" playwright-report/index.html | grep -o "Passed:[^<]*\|Failed:[^<]*\|Skipped:[^<]*"
 
 vscode:
   extensions:
-    - ms-playwright.playwright
-    - dbaeumer.vscode-eslint
-    - esbenp.prettier-vscode
-    - GitHub.vscode-pull-request-github
-    - eamodio.gitlens
+    - "ms-playwright.playwright"
+    - "dbaeumer.vscode-eslint"
+    - "esbenp.prettier-vscode"
+    - "github.vscode-pull-request-github"
+    - "eamodio.gitlens"
+    - "ms-vscode.vscode-typescript-tslint-plugin"
+    - "christian-kohler.npm-intellisense"
+
+ports:
+  - port: 9323
+    onOpen: ignore
+  - port: 3000
+    onOpen: ignore
+  - port: 9222
+    onOpen: ignore
+    visibility: public
+  - port: 443
+    onOpen: ignore
+    visibility: public
+
