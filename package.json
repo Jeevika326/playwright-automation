@@ -1,19 +1,25 @@
 {
   "name": "playwright-lambdatest-automation",
   "version": "1.0.0",
-  "description": "",
+  "description": "Playwright tests for LambdaTest automation",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "test:report": "npx playwright test && npx playwright show-report",
+    "report": "npx playwright show-report"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "testing",
+    "automation",
+    "lambdatest"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.53.0",
-    "@types/node": "^22.13.8"
-  },
-  "dependencies": {
-    "all": "^0.0.0"
+    "@types/node": "^22.13.8",
+    "dotenv": "^16.0.3"
   }
 }
+
