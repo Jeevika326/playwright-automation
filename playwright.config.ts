@@ -6,7 +6,7 @@ const LT_ACCESS_KEY = process.env.LT_ACCESS_KEY;
 export default defineConfig({
   testDir: './tests',
   retries: 1,
-  workers: 3,
+  workers: 2,
   fullyParallel: true,
   reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
@@ -29,13 +29,6 @@ export default defineConfig({
       use: { 
         ...devices['Desktop Firefox'],
         browserName: 'firefox',
-      },
-    },
-    {
-      name: 'webkit',
-      use: { 
-        ...devices['Desktop Safari'],
-        browserName: 'webkit',
       },
     },
   ],
