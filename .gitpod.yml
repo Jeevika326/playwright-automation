@@ -18,18 +18,42 @@ tasks:
       
       # Create necessary directories
       mkdir -p playwright-report test-results
-    
+
     command: |
-      # Check for .env file and load credentials
+      # Load environment variables from .env
       if [ -f ".env" ]; then
-        echo "✅ Found .env file with credentials"
-        # Load environment variables for the session
         set -a
         source .env
         set +a
+        echo "✅ Loaded credentials from .env file"
       else
-        echo "⚠️  No .env file found. Please ensure your .env file exists with LT_USERNAME and LT_ACCESS_KEY"
+        echo "⚠️  No .env file found"
       fi
+
+  - name: Run Tests & Generate Report
+    command: |
+      echo "Starting Playwright tests..."
+      
+      # Run the tests
+      npx playwright test
+      
+      # Generate and open the HTML report
+      npx playwright show-report
+      
+      # Create a timestamp for the report archive
+      TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+      
+      # Archive the test results and reports
+      mkdir -p test-archives
+      zip -r "test-archives/test-run-${TIMESTAMP}.zip" playwright-report/* test-results/*
+      
+      echo "🎯 Test execution completed!"
+      echo "📊 HTML Report is available in playwright-report/"
+      echo "📁 Test archive created: test-archives/test-run-${TIMESTAMP}.zip"
+      
+      # Display test summary
+      echo "Test Summary:"
+      grep "test" playwright-report/index.html | grep -o "Passed:[^<]*\|Failed:[^<]*\|Skipped:[^<]*"
 
   - name: Environment Check
     command: |
@@ -53,5 +77,24 @@ ports:
     onOpen: ignore
   - port: 3000
     onOpen: ignore
+  - port: 9222
+    onOpen: ignore
+    visibility: public
+  - port: 443
+    onOpen: ignore
+    visibility: public
 
-
+github:
+  prebuilds:
+    # enable for the master/default branch (defaults to true)
+    master: true
+    # enable for all branches in this repo (defaults to false)
+    branches: true
+    # enable for pull requests coming from this repo (defaults to true)
+    pullRequests: true
+    # enable for pull requests coming from forks (defaults to false)
+    pullRequestsFromForks: true
+    # add a check to pull requests (defaults to true)
+    addCheck: true
+    # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
+    addComment: true
