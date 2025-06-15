@@ -1,8 +1,42 @@
 image: gitpod/workspace-node
 
 tasks:
-  - init: npm install
-    command: npm test
+  - name: Install Dependencies & Setup
+    init: |
+      # Install Node dependencies
+      npm install
+      
+      # Install Playwright and its dependencies
+      npm install -D @playwright/test
+      
+      # Install Playwright browsers and system dependencies
+      npx playwright install
+      npx playwright install-deps
+      
+      # Install dotenv for .env file support
+      npm install dotenv
+      
+      # Create necessary directories
+      mkdir -p playwright-report test-results
+    
+    command: |
+      # Check for .env file and load credentials
+      if [ -f ".env" ]; then
+        echo "✅ Found .env file with credentials"
+        # Load environment variables for the session
+        set -a
+        source .env
+        set +a
+      else
+        echo "⚠️  No .env file found. Please ensure your .env file exists with LT_USERNAME and LT_ACCESS_KEY"
+      fi
+
+  - name: Environment Check
+    command: |
+      echo "Checking test environment..."
+      echo "Node version: $(node -v)"
+      echo "npm version: $(npm -v)"
+      echo "Playwright version: $(npx playwright -V)"
 
 vscode:
   extensions:
@@ -11,3 +45,13 @@ vscode:
     - "esbenp.prettier-vscode"
     - "github.vscode-pull-request-github"
     - "eamodio.gitlens"
+    - "ms-vscode.vscode-typescript-tslint-plugin"
+    - "christian-kohler.npm-intellisense"
+
+ports:
+  - port: 9323
+    onOpen: ignore
+  - port: 3000
+    onOpen: ignore
+
+
