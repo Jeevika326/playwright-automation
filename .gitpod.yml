@@ -1,14 +1,13 @@
+image: gitpod/workspace-node
+
 tasks:
-  - name: Install dependencies
-    init: true
-    command: npm install all
-  - name: Run Playwright tests on LambdaTest
-    command: npx playwright test
+  - init: npm install
+    command: npm test
 
 vscode:
   extensions:
-    - ms-playwright.playwright
-    - dbaeumer.vscode-eslint
-    - esbenp.prettier-vscode
-    - GitHub.vscode-pull-request-github
-    - eamodio.gitlens
+    - "ms-playwright.playwright"
+    - "dbaeumer.vscode-eslint"
+    - "esbenp.prettier-vscode"
+    - "github.vscode-pull-request-github"
+    - "eamodio.gitlens"
